@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>javax.vecmath</groupId>
+	<artifactId>javax-vecmath</artifactId>
+	<version>2.0.0</version>
+	<name>javax-vecmath</name>
+	<properties>
+      <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+      <maven.compiler.target>1.9</maven.compiler.target>
+      <maven.compiler.source>1.9</maven.compiler.source>
+	</properties>
+	<description>A fork of https://github.com/kenjihiranabe/javax.vecmath that was cleaned up and made compatible with Java 9 modules.</description>
+	<developers>
+        <developer>
+            <id>kenjihiranabe</id>
+            <name>Kenji Hiranabe</name>
+            <roles>
+                <role>architect</role>
+                <role>developer</role>
+            </roles>
+            <timezone>+9</timezone>
+        </developer>
+		<developer>
+            <id>RalleYTN</id>
+            <name>Ralph Niemitz</name>
+            <roles>
+                <role>architect</role>
+                <role>developer</role>
+            </roles>
+            <timezone>+1</timezone>
+        </developer>
+	</developers>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.7.0</version>
+				<configuration>
+					<fork>true</fork>
+					<executable>javac9</executable>
+					<source>9</source>
+                    <target>9</target>
+                    <showWarnings>true</showWarnings>
+					<showDeprecation>true</showDeprecation>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+    <dependencies>
+    	<dependency>
+    		<groupId>org.junit.jupiter</groupId>
+    		<artifactId>junit-jupiter-api</artifactId>
+    		<version>5.0.3</version>
+    		<scope>test</scope>
+    	</dependency>
+    </dependencies>
+</project>

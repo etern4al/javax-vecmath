@@ -26,14 +26,7 @@ import java.io.Serializable;
  * @author Kenji hiranabe
  */
 public final class GMatrix implements Serializable {
-
-    /*
-     * Implementation note:
-     * The size of the matrix does NOT automatically grow.
-     * It does only when setSize is called. I believe this is the spec
-     * and makes less confusion, less user bugs.
-     */
-
+	
     /**
      * The data of the GMatrix.(1D array. The (i,j) element is stored in elementData[i*nCol + j])
      */
@@ -58,15 +51,14 @@ public final class GMatrix implements Serializable {
      * @param nCol number of columns in this matrix.
      */
     public GMatrix(int nRow, int nCol) {
-	if (nRow < 0)
-	    throw new NegativeArraySizeException(nRow + " < 0");
-	if (nCol < 0)
-	    throw new NegativeArraySizeException(nCol + " < 0");
+	
+    	if(nRow < 0) throw new NegativeArraySizeException(nRow + " < 0");
+    	if(nCol < 0) throw new NegativeArraySizeException(nCol + " < 0");
 
-	this.nRow = nRow;
-	this.nCol = nCol;
-	elementData = new double[nRow*nCol];
-	setIdentity();
+    	this.nRow = nRow;
+    	this.nCol = nCol;
+    	this.elementData = new double[nRow * nCol];
+    	this.setIdentity();
     }
   
     /**
@@ -82,15 +74,14 @@ public final class GMatrix implements Serializable {
      * @param matrix a 1D array that specifies a matrix in row major fashion
      */
     public GMatrix(int nRow, int nCol, double matrix[]) {
-	if (nRow < 0)
-	    throw new NegativeArraySizeException(nRow + " < 0");
-	if (nCol < 0)
-	    throw new NegativeArraySizeException(nCol + " < 0");
+	
+    	if(nRow < 0) throw new NegativeArraySizeException(nRow + " < 0");
+    	if(nCol < 0) throw new NegativeArraySizeException(nCol + " < 0");
 
-	this.nRow = nRow;
-	this.nCol = nCol;
-	this.elementData = new double[nRow*nCol];
-	set(matrix);
+    	this.nRow = nRow;
+    	this.nCol = nCol;
+    	this.elementData = new double[nRow * nCol];
+    	this.set(matrix);
     }
 
     /**
@@ -99,11 +90,12 @@ public final class GMatrix implements Serializable {
      * @param matrix the source of the initial values of the new GMatrix
      */
     public GMatrix(GMatrix matrix) {
-	this.nRow = matrix.nRow;
-	this.nCol = matrix.nCol;
-	int newSize = nRow*nCol;
-	this.elementData = new double[newSize];
-	System.arraycopy(matrix.elementData, 0, elementData, 0, newSize);
+	
+    	this.nRow = matrix.nRow;
+    	this.nCol = matrix.nCol;
+    	int newSize = this.nRow * this.nCol;
+		this.elementData = new double[newSize];
+		System.arraycopy(matrix.elementData, 0, this.elementData, 0, newSize);
     }
 
     /**
@@ -112,8 +104,9 @@ public final class GMatrix implements Serializable {
      * @param m1 the other matrix
      */
     public final void mul(GMatrix m1) {
-	// alias-safe.
-	mul(this, m1);
+	
+    	// alias-safe.
+    	this.mul(this, m1);
     }
 
     /**
@@ -123,28 +116,31 @@ public final class GMatrix implements Serializable {
      * @param m2 the second matrix
      */
     public final void mul(GMatrix m1, GMatrix m2) {
-	// for alias-safety, decided to new double [nCol*nRow].
-	// Is there any good way to avoid this big new ?
-	if( nRow != m1.nRow )
-	    throw new ArrayIndexOutOfBoundsException(
-		"nRow:" + nRow + " != m1.nRow:" + m1.nRow);
-	if( nCol != m2.nCol )
-	    throw new ArrayIndexOutOfBoundsException(
-		"nCol:" + nCol + " != m2.nCol:" + m2.nCol);
-	if( m1.nCol != m2.nRow )
-	    throw new ArrayIndexOutOfBoundsException(
-		"m1.nCol:" + m1.nCol + " != m2.nRow:" + m2.nRow);
+	
+    	// for alias-safety, decided to new double [nCol*nRow].
+    	// Is there any good way to avoid this big new ?
+    	if(this.nRow != m1.nRow) throw new ArrayIndexOutOfBoundsException("nRow:" + this.nRow + " != m1.nRow:" + m1.nRow);
+    	if(this.nCol != m2.nCol) throw new ArrayIndexOutOfBoundsException("nCol:" + this.nCol + " != m2.nCol:" + m2.nCol);
+    	if(m1.nCol != m2.nRow) throw new ArrayIndexOutOfBoundsException("m1.nCol:" + m1.nCol + " != m2.nRow:" + m2.nRow);
 
-	double [] newData = new double [nCol*nRow];
-	for(int i = 0; i < nRow; i++) {
-	    for(int j = 0; j < nCol; j++) {
-		double sum = 0.0;
-		for(int k = 0; k < m1.nCol; k++)
-		    sum += m1.elementData[i*m1.nCol + k] * m2.elementData[k*m2.nCol + j];
-		newData[i*nCol + j] = sum;
-	    }
-	}
-	elementData = newData;
+    	double[] newData = new double[this.nCol * this.nRow];
+	
+    	for(int i = 0; i < this.nRow; i++) {
+	    
+    		for(int j = 0; j < this.nCol; j++) {
+		
+    			double sum = 0.0D;
+		
+    			for(int k = 0; k < m1.nCol; k++) {
+    				
+    				sum += m1.elementData[i * m1.nCol + k] * m2.elementData[k * m2.nCol + j];
+    			}
+		
+    			newData[i * this.nCol + j] = sum;
+    		}
+    	}
+	
+    	this.elementData = newData;
     }
   
     /**
@@ -156,16 +152,17 @@ public final class GMatrix implements Serializable {
      * @param v2 the second vector, treated as a column vector
      */
     public final void mul(GVector v1, GVector v2) {
-	if (nRow < v1.getSize())
-	    throw new IllegalArgumentException(
-		"nRow:"+nRow+" < v1.getSize():" +v1.getSize());
-	if (nCol < v2.getSize())
-	    throw new IllegalArgumentException(
-		"nCol:"+nCol+" < v2.getSize():" +v2.getSize());
+	
+    	if(this.nRow < v1.getSize()) throw new IllegalArgumentException("nRow:" + this.nRow + " < v1.getSize():" + v1.getSize());
+    	if(this.nCol < v2.getSize()) throw new IllegalArgumentException("nCol:" + this.nCol + " < v2.getSize():" + v2.getSize());
 
-	for (int i = 0; i < nRow; i++)
-	    for (int j = 0; j < nCol; j++)
-		elementData[i*nCol + j] = v1.getElement(i)*v2.getElement(j);
+    	for(int i = 0; i < this.nRow; i++) {
+    		
+    		for(int j = 0; j < this.nCol; j++) {
+		
+    			this.elementData[i * this.nCol + j] = v1.getElement(i) * v2.getElement(j);
+    		}
+    	}
     }        
   
     /**
@@ -173,11 +170,16 @@ public final class GMatrix implements Serializable {
      * @param m1 the other matrix
      */
     public final void add(GMatrix m1) {
-	if (nRow != m1.nRow || nCol != m1.nCol)
-	    throw new IllegalArgumentException("this:(" +nRow+"x"+nCol+") != m1:("+m1.nRow+"x"+m1.nCol+").");
+	
+    	if(this.nRow != m1.nRow || this.nCol != m1.nCol) {
+		
+    		throw new IllegalArgumentException("this:(" + this.nRow + "x" + this.nCol + ") != m1:(" + m1.nRow + "x" + m1.nCol + ").");
+    	}
 
-	for(int i = 0; i < nRow*nCol; i++)
-	    elementData[i] += m1.elementData[i];
+    	for(int i = 0; i < this.nRow * this.nCol; i++) {
+	    
+    		this.elementData[i] += m1.elementData[i];
+    	}
     }
   
     /**
@@ -186,13 +188,14 @@ public final class GMatrix implements Serializable {
      * @param m2 the second matrix
      */
     public final void add(GMatrix m1, GMatrix m2) {
-	if (nRow != m1.nRow || nCol != m1.nCol)
-	    throw new IllegalArgumentException("this:(" +nRow+"x"+nCol+") != m1:("+m1.nRow+"x"+m1.nCol+").");
-	if (nRow != m2.nRow || nCol != m2.nCol)
-	    throw new IllegalArgumentException("this:(" +nRow+"x"+nCol+") != m2:("+m2.nRow+"x"+m2.nCol+").");
+	
+    	if(this.nRow != m1.nRow || this.nCol != m1.nCol) throw new IllegalArgumentException("this:(" + this.nRow + "x"+nCol+") != m1:(" + m1.nRow + "x" + m1.nCol + ").");
+    	if(this.nRow != m2.nRow || this.nCol != m2.nCol) throw new IllegalArgumentException("this:(" + this.nRow + "x"+nCol+") != m2:(" + m2.nRow + "x" + m2.nCol + ").");
 
-	for(int i = 0; i < nRow*nCol; i++)
-	    elementData[i] = m1.elementData[i] + m2.elementData[i];
+    	for(int i = 0; i < this.nRow * this.nCol; i++) {
+    		
+    		this.elementData[i] = m1.elementData[i] + m2.elementData[i];
+    	}
     }
 
     /**
@@ -201,10 +204,16 @@ public final class GMatrix implements Serializable {
      * @param m1 the other matrix
      */
     public final void sub(GMatrix m1) {
-	if (nRow != m1.nRow || nCol != m1.nCol)
-	    throw new IllegalArgumentException("this:(" +nRow+"x"+nCol+") != m1:("+m1.nRow+"x"+m1.nCol+").");
-	for (int i = 0; i < nRow*nCol; i++)
-		elementData[i] -= m1.elementData[i];
+	
+    	if(nRow != m1.nRow || nCol != m1.nCol) {
+	    
+    		throw new IllegalArgumentException("this:(" + this.nRow + "x" + this.nCol + ") != m1:(" + m1.nRow + "x" + m1.nCol + ").");
+    	}
+	
+    	for(int i = 0; i < this.nRow * this.nCol; i++) {
+		
+    		this.elementData[i] -= m1.elementData[i];
+    	}
     }
 
     /**
@@ -214,21 +223,25 @@ public final class GMatrix implements Serializable {
      * @param m2 the second matrix
      */
     public final void sub(GMatrix m1, GMatrix m2) {
-	if (nRow != m1.nRow || nCol != m1.nCol)
-	    throw new IllegalArgumentException("this:(" +nRow+"x"+nCol+") != m1:("+m1.nRow+"x"+m1.nCol+").");
-	if (nRow != m2.nRow || nCol != m2.nCol)
-	    throw new IllegalArgumentException("this:(" +nRow+"x"+nCol+") != m2:("+m2.nRow+"x"+m2.nCol+").");
+	
+    	if(this.nRow != m1.nRow || this.nCol != m1.nCol) throw new IllegalArgumentException("this:(" + this.nRow + "x" + this.nCol + ") != m1:(" + m1.nRow + "x" + m1.nCol + ").");
+    	if(this.nRow != m2.nRow || this.nCol != m2.nCol) throw new IllegalArgumentException("this:(" + this.nRow + "x" + this.nCol + ") != m2:(" + m2.nRow + "x" + m2.nCol + ").");
 
-	for(int i = 0; i < nRow*nCol; i++)
-	    elementData[i] = m1.elementData[i] - m2.elementData[i];
+    	for(int i = 0; i < this.nRow * this.nCol; i++) {
+    		
+    		this.elementData[i] = m1.elementData[i] - m2.elementData[i];
+    	}
     }
 
     /**
      * Negates the value of this matrix: this = -this.
      */
     public final void negate() {
-	for (int i = 0; i < nRow*nCol; i++)
-		elementData[i] = -elementData[i];
+	
+    	for(int i = 0; i < this.nRow * this.nCol; i++) {
+		
+			this.elementData[i] = -this.elementData[i];
+		}
     }
 
     /**
@@ -236,26 +249,35 @@ public final class GMatrix implements Serializable {
      * @param m1 The source matrix
      */
     public final void negate(GMatrix m1) {
-	set(m1);
-	negate();
+	
+    	this.set(m1);
+    	this.negate();
     }
 
     /**
      * Sets this GMatrix to the identity matrix.
      */
     public final void setIdentity() {
-	setZero();
-	int min = nRow < nCol ? nRow : nCol;
-	for (int i = 0; i < min; i++)
-	    elementData[i*nCol + i] = 1.0;
+	
+    	this.setZero();
+	
+    	int min = this.nRow < this.nCol ? this.nRow : this.nCol;
+	
+    	for(int i = 0; i < min; i++) {
+    		
+    		this.elementData[i * this.nCol + i] = 1.0D;
+    	}
     }
   
     /**
      * Sets all the values in this matrix to zero.
      */
     public final void setZero() {
-	for (int i = 0; i < nRow*nCol; i++)
-	    elementData[i] = 0.0;
+	
+    	for (int i = 0; i < this.nRow * this.nCol; i++) {
+	    
+    		this.elementData[i] = 0.0;
+    	}
     }
 
     /**
@@ -263,31 +285,42 @@ public final class GMatrix implements Serializable {
      * back into this (this = I - this).
      */
     public final void identityMinus() {
-	negate();
-	int min = nRow < nCol ? nRow : nCol;
-	for (int i = 0; i < min; i++)
-	    elementData[i*nCol + i] += 1.0;
+	
+    	this.negate();
+	
+    	int min = this.nRow < this.nCol ? this.nRow : this.nCol;
+	
+    	for(int i = 0; i < min; i++) {
+	    
+    		this.elementData[i * this.nCol + i] += 1.0D;
+    	}
     }
 
     /**
      * Inverts this matrix in place. 
      */
     public final void invert() {
-	if (nRow != nCol)
-	    throw new ArrayIndexOutOfBoundsException("not a square matrix");
-	int n = nRow;
+	
+    	if(this.nRow != this.nCol) {
+    		
+    		throw new ArrayIndexOutOfBoundsException("not a square matrix");
+    	}
+    	
+    	int n = nRow;
 
-	GMatrix LU = new GMatrix(n, n);
-	GVector permutation = new GVector(n);
-	GVector column = new GVector(n);
-	GVector unit = new GVector(n);
-	LUD(LU, permutation);
-	for (int j = 0; j < n; j++) {
-	    unit.zero();
-	    unit.setElement(j, 1.0);
-	    column.LUDBackSolve(LU, unit, permutation);
-	    setColumn(j, column);
-	}
+		GMatrix LU = new GMatrix(n, n);
+		GVector permutation = new GVector(n);
+		GVector column = new GVector(n);
+		GVector unit = new GVector(n);
+		this.LUD(LU, permutation);
+		
+		for(int j = 0; j < n; j++) {
+			
+		    unit.zero();
+		    unit.setElement(j, 1.0);
+		    column.LUDBackSolve(LU, unit, permutation);
+		    this.setColumn(j, column);
+		}
     }
 
     /**
@@ -296,8 +329,9 @@ public final class GMatrix implements Serializable {
      * @param m1 the matrix to be inverted
      */
     public final void invert(GMatrix m1)  {
-	set(m1);
-	invert();
+	
+    	this.set(m1);
+    	this.invert();
     }
 
     /**
@@ -316,19 +350,28 @@ public final class GMatrix implements Serializable {
      *                  within the target matrix
      * @param target the matrix into which the sub-matrix will be copied
      */
-    public final void copySubMatrix(int rowSource, int colSource, int numRow, int numCol,
-				    int rowDest, int colDest, GMatrix target) {
-	if (rowSource < 0 || colSource < 0 || rowDest < 0 || colDest < 0)
-	    throw new ArrayIndexOutOfBoundsException(
-		"rowSource,colSource,rowDest,colDest < 0.");
-	else if (nRow < numRow + rowSource || nCol < numCol + colSource)
-	    throw new ArrayIndexOutOfBoundsException("Source GMatrix too small.");
-	else if (target.nRow < numRow + rowDest || target.nCol < numCol + colDest)
-	    throw new ArrayIndexOutOfBoundsException("Target GMatrix too small.");
+    public final void copySubMatrix(int rowSource, int colSource, int numRow, int numCol, int rowDest, int colDest, GMatrix target) {
+	
+    	if(rowSource < 0 || colSource < 0 || rowDest < 0 || colDest < 0) {
+	   
+    		throw new ArrayIndexOutOfBoundsException("rowSource,colSource,rowDest,colDest < 0.");
+	
+    	} else if(this.nRow < numRow + rowSource || this.nCol < numCol + colSource) {
+	    
+    		throw new ArrayIndexOutOfBoundsException("Source GMatrix too small.");
+	
+    	} else if(target.nRow < numRow + rowDest || target.nCol < numCol + colDest) {
+	    
+    		throw new ArrayIndexOutOfBoundsException("Target GMatrix too small.");
+    	}
 
-	for(int i = 0; i < numRow; i++)
-	    for(int j = 0; j < numCol; j++)
-		target.elementData[(i+rowDest)*nCol + (j+colDest)] = elementData[(i+rowSource)*nCol + (j+colSource)];
+    	for(int i = 0; i < numRow; i++) {
+    		
+    		for(int j = 0; j < numCol; j++) {
+    			
+    			target.elementData[(i + rowDest) * this.nCol + (j + colDest)] = this.elementData[(i + rowSource) * this.nCol + (j + colSource)];
+    		}
+    	}
     }
   
     /**
@@ -340,38 +383,48 @@ public final class GMatrix implements Serializable {
      * @param nCol number of desired columns in this matrix
      */
     public final void setSize(int nRow, int nCol)  {
-	if (nRow < 0 || nCol < 0)
-	    throw new NegativeArraySizeException("nRow or nCol < 0");
+	
+    	if(nRow < 0 || nCol < 0) {
+	    
+    		throw new NegativeArraySizeException("nRow or nCol < 0");
+    	}
 
-	int oldnRow = this.nRow;
-	int oldnCol = this.nCol;
-	int oldSize = this.nRow*this.nCol;
-	this.nRow = nRow;
-	this.nCol = nCol;
-	int newSize = nRow*nCol;
-	double [] oldData = elementData;
+    	int oldnRow = this.nRow;
+    	int oldnCol = this.nCol;
+    	int oldSize = this.nRow * this.nCol;
+    	this.nRow = nRow;
+    	this.nCol = nCol;
+    	int newSize = nRow * nCol;
+    	double[] oldData = this.elementData;
 
-	if (oldnCol == nCol) {
-	    // no need to reload elements.
-	    if (nRow <= oldnRow)
-		return;	
+    	if(oldnCol == nCol) {
+	    
+    		// no need to reload elements.
+    		if(nRow <= oldnRow) {
+		
+    			return;	
+    		}
 
-	    // have to allocate memory.
-	    elementData = new double [newSize];
+    		// have to allocate memory.
+    		this.elementData = new double[newSize];
 
-	    // copy the old data.
-	    System.arraycopy(oldData, 0, elementData, 0, oldSize);
+    		// copy the old data.
+    		System.arraycopy(oldData, 0, this.elementData, 0, oldSize);
 
-	    // no need to pad. 0.0 is automaticly padded.
-	    // for (int i = oldSize; i < newSize; i++)
-	    //     elementData[i] = 0.0;
+    		// no need to pad. 0.0 is automaticly padded.
+    		// for (int i = oldSize; i < newSize; i++)
+    		//     elementData[i] = 0.0;
 
-	} else {
-	    elementData = new double [newSize];
-	    setZero();
-	    for (int i = 0; i < oldnRow; i++)
-		System.arraycopy(oldData, i*oldnCol, elementData, i*nCol, oldnCol);
-	}
+    	} else {
+	    
+    		this.elementData = new double[newSize];
+    		this.setZero();
+	    
+    		for(int i = 0; i < oldnRow; i++) {
+    			
+    			System.arraycopy(oldData, i * oldnCol, this.elementData, i * nCol, oldnCol);
+    		}
+    	}
     }
 
     /**
@@ -383,8 +436,8 @@ public final class GMatrix implements Serializable {
      * @param matrix the row major source array
      */
     public final void set(double matrix[]) {
-	int size = nRow*nCol;
-	System.arraycopy(matrix, 0, elementData, 0, size);
+
+    	System.arraycopy(matrix, 0, this.elementData, 0, this.nRow * this.nCol);
     }
   
     /**
@@ -392,17 +445,18 @@ public final class GMatrix implements Serializable {
      * @param m1 the source matrix
      */
     public final void set(Matrix3f m1) {
-	// This implementation is in 'no automatic size grow' policy.
-	// When size mismatch, exception will be thrown from the below.
-	elementData[0] = m1.m00;
-	elementData[1] = m1.m01;
-	elementData[2] = m1.m02;
-	elementData[nCol] = m1.m10;
-	elementData[nCol + 1] = m1.m11;
-	elementData[nCol + 2] = m1.m12;
-	elementData[2*nCol] = m1.m20;
-	elementData[2*nCol + 1] = m1.m21;
-	elementData[2*nCol + 2] = m1.m22;
+	
+    	// This implementation is in 'no automatic size grow' policy.
+    	// When size mismatch, exception will be thrown from the below.
+		this.elementData[0] = m1.m00;
+		this.elementData[1] = m1.m01;
+		this.elementData[2] = m1.m02;
+		this.elementData[this.nCol] = m1.m10;
+		this.elementData[this.nCol + 1] = m1.m11;
+		this.elementData[this.nCol + 2] = m1.m12;
+		this.elementData[2 * this.nCol] = m1.m20;
+		this.elementData[2 * this.nCol + 1] = m1.m21;
+		this.elementData[2 * this.nCol + 2] = m1.m22;
     }
 
     /**
@@ -410,17 +464,18 @@ public final class GMatrix implements Serializable {
      * @param m1 the source matrix
      */
     public final void set(Matrix3d m1) {
-	// This implementation is in 'no automatic size grow' policy.
-	// When size mismatch, exception will be thrown from the below.
-	elementData[0] = m1.m00;
-	elementData[1] = m1.m01;
-	elementData[2] = m1.m02;
-	elementData[nCol] = m1.m10;
-	elementData[nCol + 1] = m1.m11;
-	elementData[nCol + 2] = m1.m12;
-	elementData[2*nCol] = m1.m20;
-	elementData[2*nCol + 1] = m1.m21;
-	elementData[2*nCol + 2] = m1.m22;
+
+    	// This implementation is in 'no automatic size grow' policy.
+    	// When size mismatch, exception will be thrown from the below.
+		this.elementData[0] = m1.m00;
+		this.elementData[1] = m1.m01;
+		this.elementData[2] = m1.m02;
+		this.elementData[this.nCol] = m1.m10;
+		this.elementData[this.nCol + 1] = m1.m11;
+		this.elementData[this.nCol + 2] = m1.m12;
+		this.elementData[2 * this.nCol] = m1.m20;
+		this.elementData[2 * this.nCol + 1] = m1.m21;
+		this.elementData[2 * this.nCol + 2] = m1.m22;
     }
 
     /**
@@ -428,24 +483,25 @@ public final class GMatrix implements Serializable {
      * @param m1 the source matrix
      */
     public final void set(Matrix4f m1) {
-	// This implementation is in 'no automatic size grow' policy.
-	// When size mismatch, exception will be thrown from the below.
-	elementData[0] = m1.m00;
-	elementData[1] = m1.m01;
-	elementData[2] = m1.m02;
-	elementData[3] = m1.m03;
-	elementData[nCol] = m1.m10;
-	elementData[nCol + 1] = m1.m11;
-	elementData[nCol + 2] = m1.m12;
-	elementData[nCol + 3] = m1.m13;
-	elementData[2*nCol] = m1.m20;
-	elementData[2*nCol + 1] = m1.m21;
-	elementData[2*nCol + 2] = m1.m22;
-	elementData[2*nCol + 3] = m1.m23;
-	elementData[3*nCol] = m1.m30;
-	elementData[3*nCol + 1] = m1.m31;
-	elementData[3*nCol + 2] = m1.m32;
-	elementData[3*nCol + 3] = m1.m33;
+	
+    	// This implementation is in 'no automatic size grow' policy.
+    	// When size mismatch, exception will be thrown from the below.
+		this.elementData[0] = m1.m00;
+		this.elementData[1] = m1.m01;
+		this.elementData[2] = m1.m02;
+		this.elementData[3] = m1.m03;
+		this.elementData[this.nCol] = m1.m10;
+		this.elementData[this.nCol + 1] = m1.m11;
+		this.elementData[this.nCol + 2] = m1.m12;
+		this.elementData[this.nCol + 3] = m1.m13;
+		this.elementData[2 * this.nCol] = m1.m20;
+		this.elementData[2 * this.nCol + 1] = m1.m21;
+		this.elementData[2 * this.nCol + 2] = m1.m22;
+		this.elementData[2 * this.nCol + 3] = m1.m23;
+		this.elementData[3 * this.nCol] = m1.m30;
+		this.elementData[3 * this.nCol + 1] = m1.m31;
+		this.elementData[3 * this.nCol + 2] = m1.m32;
+		this.elementData[3 * this.nCol + 3] = m1.m33;
     }
 
     /**
@@ -453,39 +509,44 @@ public final class GMatrix implements Serializable {
      * @param m1 the source matrix
      */
     public final void set(Matrix4d m1) {
-	// This implementation is in 'no automatic size grow' policy.
-	// When size mismatch, exception will be thrown from the below.
-	elementData[0] = m1.m00;
-	elementData[1] = m1.m01;
-	elementData[2] = m1.m02;
-	elementData[3] = m1.m03;
-	elementData[nCol] = m1.m10;
-	elementData[nCol + 1] = m1.m11;
-	elementData[nCol + 2] = m1.m12;
-	elementData[nCol + 3] = m1.m13;
-	elementData[2*nCol] = m1.m20;
-	elementData[2*nCol + 1] = m1.m21;
-	elementData[2*nCol + 2] = m1.m22;
-	elementData[2*nCol + 3] = m1.m23;
-	elementData[3*nCol] = m1.m30;
-	elementData[3*nCol + 1] = m1.m31;
-	elementData[3*nCol + 2] = m1.m32;
-	elementData[3*nCol + 3] = m1.m33;
-    }
 
+    	// This implementation is in 'no automatic size grow' policy.
+    	// When size mismatch, exception will be thrown from the below.
+		this.elementData[0] = m1.m00;
+		this.elementData[1] = m1.m01;
+		this.elementData[2] = m1.m02;
+		this.elementData[3] = m1.m03;
+		this.elementData[this.nCol] = m1.m10;
+		this.elementData[this.nCol + 1] = m1.m11;
+		this.elementData[this.nCol + 2] = m1.m12;
+		this.elementData[this.nCol + 3] = m1.m13;
+		this.elementData[2 * this.nCol] = m1.m20;
+		this.elementData[2 * this.nCol + 1] = m1.m21;
+		this.elementData[2 * this.nCol + 2] = m1.m22;
+		this.elementData[2 * this.nCol + 3] = m1.m23;
+		this.elementData[3 * this.nCol] = m1.m30;
+		this.elementData[3 * this.nCol + 1] = m1.m31;
+		this.elementData[3 * this.nCol + 2] = m1.m32;
+		this.elementData[3 * this.nCol + 3] = m1.m33;
+    }
 
     /**
      * Sets the value of this matrix to the values found in matrix m1.
      * @param m1 the source matrix
      */
     public final void set(GMatrix m1) {
-	// This implementation is in 'no automatic size grow' policy.
-	// When size mismatch, exception will be thrown from the below.
-	if (m1.nRow < nRow || m1.nCol < nCol)
-	    throw new ArrayIndexOutOfBoundsException("m1 smaller than this matrix");
-	System.arraycopy(m1.elementData, 0, elementData, 0, nRow*nCol);
+	
+    	// This implementation is in 'no automatic size grow' policy.
+    	// When size mismatch, exception will be thrown from the below.
+    	if(m1.nRow < this.nRow || m1.nCol < this.nCol) {
+	    
+    		throw new ArrayIndexOutOfBoundsException("m1 smaller than this matrix");
+    	}
+	
+    	System.arraycopy(m1.elementData, 0, this.elementData, 0, this.nRow * this.nCol);
     }
-
+    
+    // TODO
 
     /**
      * Returns the number of rows in this matrix.
@@ -1257,6 +1318,7 @@ public final class GMatrix implements Serializable {
 	    elementData[j*nCol + k] = tmp;
 	}
     }
+    
     /**
      * LU Decomposition; this matrix must be a square matrix; the LU GMatrix 
      * parameter must be the same size as this matrix. The matrix LU will be 
@@ -1273,87 +1335,116 @@ public final class GMatrix implements Serializable {
      * was even or odd respectively 
      */
     public final int LUD(GMatrix LU, GVector permutation) {
-	// note: this is from William H. Press et.al Numerical Recipes in C.
-	// hiranabe modified 1-n indexing to 0-(n-1), and not to use implicit
-	// scaling factors(which uses 'new' and I don't belive relative pivot is better)
-	// I fixed some bugs in NRC, which are missing permutation handling.
-        if (nRow != nCol)
-            throw new ArrayIndexOutOfBoundsException(
-		"not a square matrix");
-	int n = nRow;
-        if (n != LU.nRow)
-            throw new ArrayIndexOutOfBoundsException(
-		"this.nRow:"+n+ " != LU.nRow:" + LU.nRow);
-        if (n != LU.nCol)
-            throw new ArrayIndexOutOfBoundsException(
-		"this.nCol:"+n+ " != LU.nCol:" + LU.nCol);
-        if (permutation.getSize() < n)
-            throw new ArrayIndexOutOfBoundsException(
-                "permutation.size:"+permutation.getSize()+ " < this.nCol:" + n);
+	
+    	// note: this is from William H. Press et.al Numerical Recipes in C.
+    	// hiranabe modified 1-n indexing to 0-(n-1), and not to use implicit
+    	// scaling factors(which uses 'new' and I don't belive relative pivot is better)
+    	// I fixed some bugs in NRC, which are missing permutation handling.
+        if(this.nRow != this.nCol) {
+        	
+            throw new ArrayIndexOutOfBoundsException("not a square matrix");
+        }
+	
+        int n = this.nRow;
+        
+        if(n != LU.nRow) throw new ArrayIndexOutOfBoundsException("this.nRow:" + n + " != LU.nRow:" + LU.nRow);
+        if(n != LU.nCol) throw new ArrayIndexOutOfBoundsException("this.nCol:" + n + " != LU.nCol:" + LU.nCol);
+        
+        if(permutation.getSize() < n) {
+        	
+        	throw new ArrayIndexOutOfBoundsException("permutation.size:" + permutation.getSize() + " < this.nCol:" + n);
+        }
 
-	if (this != LU)
-	    LU.set(this);
+        if(this != LU) {
+        	
+        	LU.set(this);
+        }
+	    
+        int even = 1;	// permutation Odd/Even
+        double[] a = LU.elementData;
 
-	int even = 1;	// permutation Odd/Even
-	double [] a = LU.elementData;
+        // initialize index
+        for(int i = 0; i < n; i++) {
+	    
+        	permutation.setElement(i, i);
+        }
 
-	// initialize index
-	for (int i = 0; i < n; i++)
-	    permutation.setElement(i, i);
+        // start Crout's method
+        for(int j = 0; j < n; j++) {
+	    
+        	double big;
+        	double dum;
+        	double sum;
+        	int imax;	// the pivot row number
 
-	// start Crout's method
-	for (int j = 0; j < n; j++) {
-	    double  big, dum, sum;
-	    int imax;	// the pivot row number
+        	// upper portion (U)
+        	for(int i = 0; i < j; i++) {
+		
+        		sum = a[i * n + j];
+		
+        		for(int k = 0; k < i; k++) {
+		    
+        			if(a[i * n + k] != 0.0D && a[k * n + j] != 0.0D) {
+        				
+        				sum -= a[i * n + k] * a[k * n +j];
+        			}
+			
+        		}
+		
+        		a[i * n + j] = sum;
+        	}
+	    
+        	big = 0.0D;
+        	imax = j;
 
-	    // upper portion (U)
-	    for (int i = 0; i < j; i++) {
-		sum = a[i*n + j];
-		for (int k = 0; k < i; k++) {
-		    if (a[i*n + k] != 0.0 && a[k*n + j] != 0.0)
-			sum -= a[i*n + k] * a[k*n +j];
-		}
-		a[i*n + j] = sum;
-	    }
-	    big = 0.0;
-	    imax = j;
+        	// lower part (L)
+        	for(int i = j; i < n; i++) {
+		
+        		sum = a[i * n + j];
+		
+        		for(int k = 0; k < j; k++) {
+		    
+        			if(a[i * n +  k] != 0.0D && a[k * n + j] != 0.0D) {
+        				
+        				sum -= a[i*n + k] * a[k*n + j];
+        			}
+        		}
+		
+        		a[i * n + j] = sum;
+        		dum = Math.abs(sum);
+		
+        		if(dum >= big) {
+		    
+        			big = dum;
+        			imax = i;	// imax is the pivot
+        		}
+        	}
 
-	    // lower part (L)
-	    for (int i = j; i < n; i++) {
-		sum = a[i*n + j];
-		for (int k = 0; k < j; k++) {
-		    if (a[i*n +  k] != 0.0 && a[k*n + j] != 0.0)
-			sum -= a[i*n + k] * a[k*n + j];
-		}
-		a[i*n + j] = sum;
-		dum = Math.abs(sum);
-		if (dum >= big) {
-		    big = dum;
-		    imax = i;	// imax is the pivot
-		}
-	    }
+        	if(j != imax) {	// if pivot is not on the diagonal
+		
+        		// swap rows
+        		LU.swapRows(imax, j);
+        		double tmp = permutation.getElement(imax);
+        		permutation.setElement(imax, permutation.getElement(j));
+        		permutation.setElement(j, tmp);
+        		even = -even;
+        	}
 
-	    if (j != imax) {	// if pivot is not on the diagonal
-		// swap rows
-		LU.swapRows(imax, j);
-		double tmp = permutation.getElement(imax);
-		permutation.setElement(imax, permutation.getElement(j));
-		permutation.setElement(j, tmp);
-		even = -even;
-	    }
+        	// zero-div occurs.
+        	// if (a[j][j] == 0.0) 
 
-	    // zero-div occurs.
-	    // if (a[j][j] == 0.0) 
+        	if(j != n - 1) {
+		
+        		dum = 1.0D / a[j * n + j];
+		
+        		for(int i = j + 1; i < n; i++) {
+        			
+        			a[i * n + j] *= dum;
+        		}
+        	}
 
-	    if (j != n - 1) {
-		dum = 1.0 / a[j*n + j];
-		for (int i = j + 1; i < n; i++) 
-		    a[i*n + j] *= dum;
-	    }
-
-	} // end of for j
-
-	return even;
-
+        } // end of for j
+	
+		return even;
     }
 }

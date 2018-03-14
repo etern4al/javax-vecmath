@@ -26,23 +26,6 @@ import java.io.Serializable;
   * @author Kenji hiranabe
   */
 public abstract class Tuple4i implements Serializable {
-/*
- * $Log$
- * Revision 1.1  2002/08/22 20:01:16  egonw
- * Lots of new files. Amongst which the source code of vecmath.jar.
- * The latter has been changed to compile with gcj-3.0.4.
- * Actually, CDK does now compile, i.e. at least the classes mentioned
- * in core.classes and extra.classes. *And* a binary executable can get
- * generated that works!
- *
-# Revision 1.1  1999/11/25  10:29:35  hiranabe
-# Initial revision
-#
-# Revision 1.1  1999/11/25  10:29:35  hiranabe
-# Initial revision
-#
- */
-
 
     /**
       * The x coordinate.

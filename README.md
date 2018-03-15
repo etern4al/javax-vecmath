@@ -1,4 +1,5 @@
-![Build Result](https://api.travis-ci.org/RalleYTN/javax-vecmath.svg?branch=master)
+[![Build Result](https://api.travis-ci.org/RalleYTN/javax-vecmath.svg?branch=master)](https://travis-ci.org/RalleYTN/javax-vecmath)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/60d897fa72f349a6bee5984be6a29caa)](https://www.codacy.com/app/ralph.niemitz/javax-vecmath?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=RalleYTN/javax-vecmath&amp;utm_campaign=Badge_Grade)
 
 # Description
 
